@@ -9,12 +9,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest] # All OSes pass except Windows because tests need Unix-only fcntl, grp, pwd, etc.
+        os: [ubuntu-22.04, macos-latest] # All OSes pass except Windows because tests need Unix-only fcntl, grp, pwd, etc.
         python-version: [ "3.7", "3.8", "3.9", "3.10", "3.11", "pypy-3.8" ]
+        exclude:
+          - os: macos-latest
+            python-version: 3.7
     steps:
       - uses: actions/checkout@v3
       - name: Using Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: MatteoH2O1999/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install Dependencies

@@ -51,7 +51,7 @@ class request(object):
         with open(self.fname, 'rb') as handle:
             self.data = handle.read()
         self.data = self.data.replace(b"\n", b"").replace(b"\\r\\n", b"\r\n")
-        self.data = self.data.replace(b"\\0", b"\000")
+        self.data = self.data.replace(b"\\0", b"\000").replace(b"\\t", b"\t")
 
     # Functions for sending data to the parser.
     # These functions mock out reading from a
@@ -246,8 +246,10 @@ class request(object):
     def check(self, cfg, sender, sizer, matcher):
         cases = self.expect[:]
         p = RequestParser(cfg, sender(), None)
-        for req in p:
+        parsed_request_idx = -1
+        for parsed_request_idx, req in enumerate(p):
             self.same(req, sizer, matcher, cases.pop(0))
+        assert len(self.expect) == parsed_request_idx + 1
         assert not cases
 
     def same(self, req, sizer, matcher, exp):
@@ -283,4 +285,5 @@ class badrequest(object):
 
     def check(self, cfg):
         p = RequestParser(cfg, self.send(), None)
-        next(p)
+        for _ in p:
+            pass
